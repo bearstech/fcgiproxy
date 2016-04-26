@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/mholt/caddy/middleware"
 	"github.com/mholt/caddy/middleware/fastcgi"
+	logg "github.com/mholt/caddy/middleware/log"
+	"log"
 	"net"
 	"net/http"
 	"net/http/fcgi"
@@ -10,7 +13,7 @@ import (
 )
 
 type Proxy struct {
-	server fastcgi.Handler
+	server middleware.Handler
 }
 
 func (p Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -46,8 +49,22 @@ func main() {
 		},
 		},
 	}
+	logPath := "/tmp/access.log"
+	var file *os.File
+	file, err = os.OpenFile(logPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
 
-	p := Proxy{handler}
+	logger := logg.Logger{
+		Next: handler,
+		Rules: []logg.Rule{{
+			PathScope:  "/",
+			OutputFile: logPath,
+			Format:     "{when} {host} {method} {path} {latency} {size} {status}",
+			Log:        log.New(file, "", 0),
+		},
+		},
+	}
+
+	p := Proxy{logger}
 
 	err = fcgi.Serve(listener, p)
 	if err != nil {
