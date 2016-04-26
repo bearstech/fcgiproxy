@@ -49,9 +49,13 @@ func main() {
 		},
 		},
 	}
+
 	logPath := "/tmp/access.log"
 	var file *os.File
 	file, err = os.OpenFile(logPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
+	if err != nil {
+		panic(err)
+	}
 
 	logger := logg.Logger{
 		Next: handler,
