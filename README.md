@@ -8,7 +8,22 @@ Fastcgi server is in golang core library. Fastcgi client cames from [Caddy](http
 Usage
 -----
 
-    fcgiproxy /path/to/web/root /path/to/unix_socket/for/apache /path/to/unix_socket/from/php
+There is an autodoc
+
+    $ fcgiproxy -h
+    Usage of fcgiproxy:
+      -listen string
+            What Apache or Nginx see (default "/var/run/fcgiproxy.sock")
+      -log string
+            Log path (default "/var/log/fcgiproxy.log")
+      -root string
+            Where the PHP files live (default "/var/www")
+      -target string
+            Where is php-fpm (default "/var/run/php5-fpm.sock")
+
+You can test with something like that :
+
+    fcgiproxy -root /path/to/web/root -listen /path/to/unix_socket/for/apache -target /path/to/unix_socket/from/php -log /tmp/fcgiproxy.log
 
 Licence
 -------
